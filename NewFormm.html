@@ -1,0 +1,78 @@
+<html>
+<head><style> 
+table,td,tr{
+	border: 1px solid black;
+}
+</style> 
+<script type="text/javascript">
+function func()
+ {
+
+  var name = document.getElementById("name").value;
+  var CustmerID = document.getElementById("custid").value;
+  var EUnits = document.getElementById("units").value;
+  var e = document.getElementById("type");
+  var CType = e.options[e.selectedIndex].value;
+  var total;
+  if(CType=="Commercial")
+  total = EUnits*15;
+  else
+  total = EUnits*10;
+  alert(name+" has to pay "+ total);
+  //document.write(name+" has to pay "+ total);
+  }
+</script>
+
+</head>
+<body>
+<h1 align="center" color="Green">Electricity Bill</h1>
+<form> 
+<table align="center">
+
+<tr>
+<td>Name</td>
+<td>
+<input type="text" id="name" name="name" required Pattern="[A-Z]{1}[A-Za-z][\s][A-Z]{1}[A-Za-z]"></td>
+</tr>
+
+<tr>
+<td>CustID</td>
+<td>
+<input type="number" id="custid" name="custid" required></td>
+</tr>
+
+<tr>
+<td>Mobile No</td>
+<td>
+<input type="number" id="phone" name="phone" required pattern="/(8|9)\d{9}/"></td></tr>
+
+<tr>
+<td>Date</td>
+<td>
+<input type="date" id="date" name="date"></td>
+</tr>
+
+<tr><td>Type</td>
+<td>
+<select id="type">
+<option>Commercial</option>
+<option>Domestic</option>
+</td>
+</select>
+</tr>
+
+<tr>
+<td>Units
+</td>
+<td>
+<input type="number" id="units" name="units" required placeholder="0"></td>
+</tr>
+<tr>
+<td></td>
+<td><input type="submit" name="submit" value="Calculate" onclick=" func()">
+<input type="reset" value="Reset" ></td>
+</tr>
+</table>
+</form>
+</body>
+</html>
