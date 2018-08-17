@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<department>
+    <deptid>1
+    <dname>Sales
+        <empid>1001
+            <name>tom</name>
+            <salary>20000</salary>
+            <email>tom@gmail.com</email>
+            <phone>1920</phone></empid>
+        <empid>
+            1002
+            <name>Sam</name>
+            <salary>20400</salary>
+            <email>Sam@gmail.com</email>
+            <phone>1909</phone>
+        </empid>
+    </dname>
+    </deptid>
+    <deptid>2
+        <dname>Admin
+        <empid>1006
+            <name>Ram</name>
+            <salary>15000</salary>
+            <email>Ram@gmail.com</email>
+            <phone>15000</phone>
+        </empid>
+        <empid>
+            1007
+            <name>sm</name>
+            <salary>20400</salary>
+            <email>Sm@gmail.com</email>
+            <phone>109</phone>
+        </empid>
+    </dname>
+    
+    </deptid>
+    
+</department>
