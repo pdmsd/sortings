@@ -1,0 +1,257 @@
+----------------1------------------------
+
+1--
+Cannot initialize inside DECLARE block
+
+2--
+DECLARE --outer block
+var_num1 NUMBER := 5;
+BEGIN
+DECLARE --inner block
+var_num1 NUMBER := 10;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('Value for var_num1:' ||var_num1);
+END;
+END;
+
+3--
+DECLARE
+emp_detail employee%ROWTYPE;
+BEGIN
+select * into emp_detail from employee where empno=7369;
+dbms_output.put_line(emp_detail.empno||' '||emp_detail.ename||' ' ||
+emp_detail.job||' '||emp_detail.mgr||' '||emp_detail.hiredate||' '||emp_detail.sal||' '||emp_detail.comm||' '||emp_detail.deptno);
+end;
+
+4--
+DECLARE
+emp_detail employee%ROWTYPE;
+dname department_master.dept_name%TYPE;
+name employee.ename%TYPE;
+BEGIN
+name := '&name';
+select * into emp_detail from employee where ename=name;
+select dept_name into dname from department_master where dept_code = emp_detail.deptno;
+dbms_output.put_line(emp_detail.empno||' '||emp_detail.ename||' ' ||
+emp_detail.job||' '||emp_detail.mgr||' '||emp_detail.hiredate||' '||
+ emp_detail.sal||' '||emp_detail.comm||' '||emp_detail.deptno||' '||dname);
+END;
+
+
+5--***
+DECLARE
+dcode staff_master.staff_code%TYPE;
+sal staff_master.staff_sal%TYPE;
+hike staff_master.staff_sal%TYPE;
+BEGIN
+dcode := &dcode;
+select staff_sal into sal from staff_master where dept_code = dcode;
+hike := sal*0.3;
+if hike>5000 
+then
+sal := sal+5000;
+else
+sal := sal+hike;
+end if;
+update staff_master set staff_sal = sal where dept_code = dcode;
+end;
+
+
+-------------------2-----------------------
+
+1--
+DECLARE
+V_BONUS V_SAL%TYPE;
+V_SAL STAFF_MASTER.STAFF_SAL%TYPE;
+BEGIN
+SELECT STAFF_SAL INTO V_SAL
+FROM STAFF_MASTER
+WHERE MGR_CODE=100006;
+V_BONUS:=2*V_SAL;
+DBMS_OUTPUT.PUT_LINE('STAFF SALARY IS ' || V_SAL);
+DBMS_OUTPUT.PUT_LINE('STAFF BONUS IS ' || V_BONUS);
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('GIVEN CODE IS NOT VALID.ENTER VALID CODE');
+END;
+
+--V_BONUS declared before V_SAL
+--TOO_MANY_ROWS exception missing
+
+
+2--
+DECLARE
+V_SAL STAFF_MASTER.STAFF_SAL%TYPE;
+V_BONUS V_SAL%TYPE;
+BEGIN
+SELECT STAFF_SAL INTO V_SAL
+FROM STAFF_MASTER
+WHERE MGR_CODE=100006;
+V_BONUS:=2*V_SAL;
+DBMS_OUTPUT.PUT_LINE('STAFF SALARY IS ' || V_SAL);
+DBMS_OUTPUT.PUT_LINE('STAFF BONUS IS ' || V_BONUS);
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('GIVEN CODE IS NOT VALID.ENTER VALID CODE');
+WHEN TOO_MANY_ROWS THEN
+DBMS_OUTPUT.PUT_LINE('TOO MANY ROWS RETURNED');
+END;
+
+
+3--
+DECLARE
+com employee.comm%TYPE;
+eno employee.empno%TYPE;
+cmm_excp EXCEPTION;
+BEGIN
+eno := &eno;
+select comm into com from employee where empno=eno;
+if com is null or com = 0 then
+raise cmm_excp;
+end if;
+dbms_output.put_line('Commission is : '||com);
+EXCEPTION
+when NO_DATA_FOUND then
+DBMS_OUTPUT.PUT_LINE('Commission does not exist');
+when OTHERS then
+DBMS_OUTPUT.PUT_LINE('Commission does not exist');
+end;
+
+
+------------------3----------------------------
+
+1--
+create or replace function age(dt date)
+return number
+as
+num number;
+begin
+select extract(year from dt) into num from dual;
+return num;
+end age;
+
+declare
+num number(4);
+begin
+num := age('04-AUG-1996');
+dbms_output.put_line(num);
+end;
+
+
+2--**
+create or replace procedure staff(scode in out number,name in out varchar2, dcode in out number, mname in out varchar2)
+as
+begin
+select distinct a.staff_code,b.staff_name,a.dept_code,a.staff_name into
+scode,name,dcode,mname 
+from staff_master a,staff_master b
+where a.staff_code=b.mgr_code;
+end;
+
+
+
+
+3--
+create or replace function ctc(scode number)
+return number
+as
+sal staff_master.staff_sal%TYPE;
+yr number(4);
+begin
+select staff_sal into sal from staff_master;
+select extract(year from hiredate) into yr from staff_master;
+yr := extract(year from sysdate) - yr;
+if yr>4 then
+	sal := 0.15*sal + 0.2*sal + 0.08*sal + 0.3*sal;
+elsif yr>=2 and yr<4 then 
+	sal := 0.15*sal + 0.2*sal + 0.08*sal + 0.2*sal;
+elsif yr >=1 and yr<2 then
+	sal := 0.15*sal + 0.2*sal + 0.08*sal + 0.1*sal;
+else 
+	sal := 0.15*sal + 0.2*sal + 0.08*sal;
+end if;
+return sal;
+end;
+
+
+4--
+create or replace procedure update_sal(scode in number)
+as
+sal staff_master.staff_sal%TYPE;
+yr number(4);
+begin
+select extract(year from hiredate) into yr from staff_master where staff_code=scode;
+yr := extract(year from sysdate) - yr;
+if yr>5 then
+	update staff_master set staff_sal =  staff_sal + 0.25*staff_sal where staff_code=scode;
+elsif yr>2 and yr<=5 then
+	update staff_master set staff_sal =  staff_sal + 0.20*staff_sal where staff_code=scode;
+else
+	sal:=0;
+end if;
+end;
+
+
+5--
+create or replace procedure bt_ins(bcode in number,code in number)
+as
+dor varchar2(30);
+a_dor date;
+stu_code number;
+sff_code number;
+len number;
+begin
+len:=length(code);
+if len=6 then
+select staff_code into sff_code from book_transactions where staff_code=code;
+else
+select student_code into stu_code from book_transactions where student_code=code;
+end if;
+select to_char(sysdate+10,'DAY') INTO dor FROM DUAL;
+if(dor='SATURDAY') then
+select (sysdate+12) INTO a_dor FROM DUAL;
+elsif (dor='SUNDAY')then
+select (sysdate+11) INTO a_dor FROM DUAL;
+else
+select (sysdate+10) INTO a_dor FROM DUAL;
+end if;
+if sff_code is null then
+insert into book_transactions values(bcode,stu_code,null,sysdate,a_dor,null);
+else
+insert into book_transactions values(bcode,null,sff_code,sysdate,a_dor,null);
+end if;
+end;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
